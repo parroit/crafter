@@ -12,6 +12,7 @@ var chai = require('chai');
 chai.expect();
 chai.should();
 
+var path = require('path');
 var crafter = require('../lib/crafter.js');
 var addRequired = require('../lib/add-required.js');
 var expected = {
@@ -170,12 +171,13 @@ describe('crafter', function() {
 
         craft.visit().pipe(crafter.toArray(function(result) {
             var files = result.map(function(r) {
-                return r.path;
+                var res = path.relative(__dirname,r.path);
+                return res;
             });
             files.should.be.deep.equal([
-                '/mnt/repositories/repositories/crafter/test/assets/requires_two.js',
-                '/mnt/repositories/repositories/crafter/test/assets/x.js',
-                '/mnt/repositories/repositories/crafter/test/assets/y.js'
+                'assets/requires_two.js',
+                'assets/x.js',
+                'assets/y.js'
             ]);
 
 
@@ -191,12 +193,13 @@ describe('crafter', function() {
 
         craft.visit().pipe(crafter.toArray(function(result) {
             var files = result.map(function(r) {
-                return r.path;
+                var res = path.relative(__dirname,r.path);
+                return res;
             });
             files.should.be.deep.equal([
-                '/mnt/repositories/repositories/crafter/test/assets/requires_in_folder.js',
-                '/mnt/repositories/repositories/crafter/test/assets/sub/x.js',
-                '/mnt/repositories/repositories/crafter/test/assets/y.js'
+                'assets/requires_in_folder.js',
+                'assets/sub/x.js',
+                'assets/y.js'
             ]);
 
 
@@ -212,12 +215,13 @@ describe('crafter', function() {
 
         craft.visit().pipe(crafter.toArray(function(result) {
             var files = result.map(function(r) {
-                return r.path;
+                var res = path.relative(__dirname,r.path);
+                return res;
             });
             files.should.be.deep.equal([
-                '/mnt/repositories/repositories/crafter/test/assets/requires_by_index.js',
-                '/mnt/repositories/repositories/crafter/test/assets/y.js',
-                '/mnt/repositories/repositories/crafter/test/assets/sub2/index.js'
+                'assets/requires_by_index.js',
+                'assets/y.js',
+                'assets/sub2/index.js'
             ]);
 
 
@@ -234,11 +238,12 @@ describe('crafter', function() {
 
         craft.visit().pipe(crafter.toArray(function(result) {
             var files = result.map(function(r) {
-                return r.path;
+                var res = path.relative(__dirname,r.path);
+                return res;
             });
             files.should.be.deep.equal([
-                '/mnt/repositories/repositories/crafter/test/assets/requires_duplicate.js',
-                '/mnt/repositories/repositories/crafter/test/assets/y.js'
+                'assets/requires_duplicate.js',
+                'assets/y.js'
             ]);
 
 
@@ -254,21 +259,22 @@ describe('crafter', function() {
 
         craft.visit().pipe(crafter.toArray(function(result) {
             var files = result.map(function(r) {
-                return r.path;
+                var res = path.relative(__dirname,r.path);
+                return res;
             });
             files.sort().should.be.deep.equal([
-                '/mnt/repositories/repositories/crafter/test/../node_modules/concat-stream/index.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/readable-stream/readable.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/inherits/inherits.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/typedarray/index.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/readable-stream/lib/_stream_readable.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/readable-stream/lib/_stream_writable.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/readable-stream/lib/_stream_duplex.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/readable-stream/lib/_stream_transform.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/readable-stream/lib/_stream_passthrough.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/readable-stream/node_modules/isarray/index.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/readable-stream/node_modules/core-util-is/lib/util.js',
-                '/mnt/repositories/repositories/crafter/node_modules/concat-stream/node_modules/readable-stream/node_modules/string_decoder/index.js'
+                '../node_modules/concat-stream/index.js',
+                '../node_modules/concat-stream/node_modules/readable-stream/readable.js',
+                '../node_modules/concat-stream/node_modules/inherits/inherits.js',
+                '../node_modules/concat-stream/node_modules/typedarray/index.js',
+                '../node_modules/concat-stream/node_modules/readable-stream/lib/_stream_readable.js',
+                '../node_modules/concat-stream/node_modules/readable-stream/lib/_stream_writable.js',
+                '../node_modules/concat-stream/node_modules/readable-stream/lib/_stream_duplex.js',
+                '../node_modules/concat-stream/node_modules/readable-stream/lib/_stream_transform.js',
+                '../node_modules/concat-stream/node_modules/readable-stream/lib/_stream_passthrough.js',
+                '../node_modules/concat-stream/node_modules/readable-stream/node_modules/isarray/index.js',
+                '../node_modules/concat-stream/node_modules/readable-stream/node_modules/core-util-is/lib/util.js',
+                '../node_modules/concat-stream/node_modules/readable-stream/node_modules/string_decoder/index.js'
             ].sort());
 
 
