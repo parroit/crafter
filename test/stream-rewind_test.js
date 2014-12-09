@@ -18,7 +18,7 @@ var through2 = require('through2');
 
 function editContent(fn) {
     return through2.obj(function streamRewind(file, enc, next) {
-        if (file == null) {
+        if (!file) {
             this.push(file);
             return next();            
         }
@@ -47,17 +47,18 @@ describe('@only streamRewind', function() {
                 return through2.obj(function streamRewind(file, enc, next) {
                     if (x < 5) {
                         file.rewind();
-                        file.rewind.passed();
                         return next();
                     }
                     
-                    file.rewind.passed();
+                    //file.rewind.passed();
 
                     this.push(file);
                     return next();
 
                 });
             })())
+
+            .pipe( streamRewind.passed() )
 
             .pipe(vinylString.dst(function(result) {
                 result = result[0].contents.toString('utf8');
@@ -78,6 +79,7 @@ describe('@only streamRewind', function() {
                 return c;
             }))
             .pipe(streamRewind())
+
             .pipe(editContent(function(c) {
                 
                 return c + (x++) + ';';
@@ -86,17 +88,17 @@ describe('@only streamRewind', function() {
                 return through2.obj(function streamRewind(file, enc, next) {
                     if (x < 5) {
                         file.rewind(second);
-                        file.rewind.passed();
                         return next();
                     } 
 
-                    file.rewind.passed();
                     
                     this.push(file);
                     return next();
 
                 });
             })())
+
+            .pipe( streamRewind.passed() )
 
             .pipe(vinylString.dst(function(result) {
                 var result0 = result[0].contents.toString('utf8');
@@ -121,21 +123,15 @@ describe('@only streamRewind', function() {
                 return through2.obj(function (file, enc, next) {
                     if (!pushed) {
                         pushed = true;
-                        
-                        
                         file.rewind.repipe(vinylString.src(['var y = 42;']));
-                        
                     } 
-
-                    file.rewind.passed();
-                    
 
                     this.push(file);
                     return next();
 
                 });
             })())
-            
+             .pipe( streamRewind.passed() )
             .pipe(vinylString.dst(function(result) {
                 //console.dir(result)
                 var result0 = result[0].contents.toString('utf8');

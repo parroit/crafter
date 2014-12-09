@@ -38,7 +38,9 @@
     "vinyl": "^0.4.6",
     "vinyl-fs": "^0.3.13",
     "walk-ast": "0.0.2",
-    "through": "~2.3.6"
+    "through": "~2.3.6",
+    "escodegen": "~1.4.1",
+    "bluebird": "~2.3.11"
   },
   "devDependencies": {
     "chai": "~1.9.1",
