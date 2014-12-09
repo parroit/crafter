@@ -19,6 +19,15 @@ gulp.task('test', function () {
     }));
 });
 
+gulp.task('only', function () {
+  return gulp.src('./test/*.js')
+    .pipe(mocha({
+      ui: 'bdd',
+      reporter: 'spec',
+      grep: '@only'
+    }));
+});
+
 gulp.task('watch', function () {
   gulp.watch(['./lib/**/*.js', './test/**/*.js'], ['test']);
 });

@@ -130,7 +130,7 @@ describe('crafter', function() {
         var added = false;
         ast.use(function(node) {
             if (node.type === 'VariableDeclaration' && !added) {
-                this.craft.pushFromCode('var x = require(\'x\');', '/test/added.js');
+                crafter.fromCode('var x = require(\'x\');', '/test/added.js');
                 added = true;
             }
         });
