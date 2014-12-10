@@ -2,7 +2,7 @@
 
 cjs module builder
 
-[![Build Status](https://secure.travis-ci.org/parroit/crafter.png?branch=master)](http://travis-ci.org/parroit/crafter) [![NPM version](https://badge-me.herokuapp.com/api/npm/crafter.png)](http://badges.enytc.com/for/npm/crafter) 
+[![Build Status](https://secure.travis-ci.org/parroit/crafter.png?branch=master)](http://travis-ci.org/parroit/crafter) [![NPM version](https://badge-me.herokuapp.com/api/npm/crafter.png)](http://badges.enytc.com/for/npm/crafter)  [![Code Climate](https://codeclimate.com/github/parroit/crafter.png)](https://codeclimate.com/github/parroit/crafter) [![Test Coverage](https://codeclimate.com/github/parroit/crafter/badges/coverage.svg)](https://codeclimate.com/github/parroit/crafter)
 
 ## Getting Started
 Install the module with: `npm install crafter`
