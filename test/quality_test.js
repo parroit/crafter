@@ -13,6 +13,7 @@ chai.expect();
 chai.should();
 
 var path = require('path');
+var fs = require('fs');
 var vinylFs = require('vinyl-fs');
 var vinylString = require('../lib/vinylString');
 var includeRequirements = require('../lib/include-requirements.js');
@@ -21,10 +22,26 @@ var codeGenerator = require('../lib/code-generator');
 
 var functionWrapper = require('../lib/declare-function-wrapper');
 
-describe('@only function wrapper', function() {
-    this.timeout(2000);
+describe('pass quality tests', function() {
+    
+    describe('function wrapper', function() {
+        checkQualityTest('file_without_deps' );
+        checkQualityTest('multiple_files_without_deps' );
+        checkQualityTest('simple_requirement' );
+        checkQualityTest('requires_by_index' );
+    });
+
+    
 
     function check(readable, expected, done) {
+        var expectasions;
+        if (typeof expected === 'string') {
+            expectasions = [expected];
+        } else {
+            expectasions = expected;
+        }
+
+
         readable
             .pipe(modulesBuilder.start())
             .pipe(includeRequirements(vinylFs))
@@ -33,13 +50,15 @@ describe('@only function wrapper', function() {
             .pipe(functionWrapper())
             .pipe(codeGenerator())
             .pipe(vinylString.dst(function(result) {
-                
-                var actual = result[0].contents.toString('utf8')
-                //console.log(JSON.stringify(result[0].ast,null,4));
-                //console.log(actual)
-                actual.should.be.equal(expected);
+                result.length.should.be.equal(expectasions.length);
+                var i = expectasions.length;
+                while (i--) {
+                    var actual = result[i].contents.toString('utf8');
+                    actual.should.be.equal(expectasions[i]);
+                }
                 done();
             }));
+
     }
 
     function checkWithFile(path, expected, done) {
@@ -60,29 +79,24 @@ describe('@only function wrapper', function() {
 
     }
 
-    it('files without deps', function(done) {
-        checkWithCode(
-            'var x = 42;', 
-            'define(0, function () {\n    var x = 42;\n});',
-            done
-        );
-    });
+    function checkQualityTest(test) {
+        it(test, function(done) {
+            var pattern = __dirname + '/assets/quality_tests/' + test + '/*_source.js';
+            var expected = fs.readFileSync(__dirname + '/assets/quality_tests/' + test + '/expected.js', 'utf8');
+            var exps = expected.split('\n\n');
 
-    it('multiple files without deps', function(done) {
-        checkWithCode(
-            ['var x = 42;', 'var z = 42;'], 
-            'define(0, function () {\n    var x = 42;\n});',
-            done
-        );
-    });
+            checkWithFile(
+                pattern,
+                exps,
+                done
+            );
+        });
 
-    it('add required files', function(done) {
-        checkWithCode(
-            'var x = require(\'./x\');', 
-            'define(0, function () {\n    var x = require(1);\n});',
-            done
-        );
-    });
+    }
+
+
+
+
 
 
 
