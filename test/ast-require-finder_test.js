@@ -19,7 +19,7 @@ var astParser = require('../lib/ast-parser');
 var requireFinder = require('../lib/ast-require-finder.js');
 
 
-describe('requireFinder', function() {
+describe('@only requireFinder', function() {
     this.timeout(2000);
 
     it('is defined', function() {
@@ -31,21 +31,41 @@ describe('requireFinder', function() {
             .pipe(astParser())
             .pipe(astVisitor(requireFinder))
             .pipe(vinylString.dst(function(result) {
+                console.dir(result[0].requires)
                 result[0].requires.should.be.deep.equal(expected);
                 done();
             }));
 
     }
 
-    it.only('add required files', function(done) {
+    it('add required files', function(done) {
         var code = 'var x = require(\'./x\');';
         checkWithCode(code, {
-            core: [],
-            relatives: ['./x'],
-            dependencies: []
+            core: {},
+            relatives: {'./x': 'test/assets/x.js'},
+            dependencies: {}
         },done);
     });
 
+    it('add required core files', function(done) {
+        var code = 'var x = require(\'fs\');';
+        checkWithCode(code, {
+            core: {'fs': true},
+            relatives: {},
+            dependencies: {}
+        },done);
+    });
+
+    it('add required node_modules', function(done) {
+        var code = 'var x = require(\'acorn\');';
+        checkWithCode(code, {
+            core: {},
+            relatives: {},
+            dependencies: {'acorn': 'node_modules/acorn/acorn.js'}
+        },done);
+    });
+    
+/*
     it('require deep files', function(done) {
         var code = 'var x = require(\'./x\');';
         var craft = crafter.from(__dirname + '/assets/requires_two.js');
@@ -166,7 +186,7 @@ describe('requireFinder', function() {
 
     });
 
-
+*/
 
 
 });

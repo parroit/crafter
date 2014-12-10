@@ -40,7 +40,9 @@
     "walk-ast": "0.0.2",
     "through": "~2.3.6",
     "escodegen": "~1.4.1",
-    "bluebird": "~2.3.11"
+    "bluebird": "~2.3.11",
+    "duplexer2": "0.0.2",
+    "merge-stream": "~0.1.6"
   },
   "devDependencies": {
     "chai": "~1.9.1",

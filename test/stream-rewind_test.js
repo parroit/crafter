@@ -12,12 +12,12 @@ var chai = require('chai');
 chai.expect();
 chai.should();
 var vinylString = require('../lib/vinylString');
-var streamRewind = require('../lib/stream-rewind');
+var fallup = require('../lib/stream-rewind');
 var through2 = require('through2');
 
 
 function editContent(fn) {
-    return through2.obj(function streamRewind(file, enc, next) {
+    return through2.obj(function fallup(file, enc, next) {
         if (!file) {
             this.push(file);
             return next();            
@@ -30,37 +30,36 @@ function editContent(fn) {
     });
 }
 
-describe('@only streamRewind', function() {
+describe('@only fallup', function() {
     this.timeout(2000);
     it('is defined', function() {
-        streamRewind.should.be.a('function');
+        fallup.should.be.a('function');
     });
 
     it('repush file to stream', function(done) {
         var x = 0;
         vinylString.src('var x = 42;')
-            .pipe(streamRewind())
+            .pipe(fallup())
             .pipe(editContent(function(c) {
                 return c + (x++) + ';';
             }))
             .pipe((function() {
-                return through2.obj(function streamRewind(file, enc, next) {
+                return through2.obj(function fallup(file, enc, next) {
                     if (x < 5) {
-                        file.rewind();
-                        return next();
+                        file.fallup.write(file);
+                        
+                    } else {
+                        file.fallup.end();
+                        this.push(file);
                     }
                     
-                    //file.rewind.passed();
-
-                    this.push(file);
                     return next();
 
                 });
             })())
 
-            .pipe( streamRewind.passed() )
-
             .pipe(vinylString.dst(function(result) {
+                result.length.should.be.equal(1);
                 result = result[0].contents.toString('utf8');
                 result.should.be.equal('var x = 42;0;1;2;3;4;');
                 done();
@@ -78,34 +77,34 @@ describe('@only streamRewind', function() {
                 }
                 return c;
             }))
-            .pipe(streamRewind())
+            .pipe(fallup())
 
             .pipe(editContent(function(c) {
                 
                 return c + (x++) + ';';
             }))
             .pipe((function() {
-                return through2.obj(function streamRewind(file, enc, next) {
+                return through2.obj(function fallup(file, enc, next) {
                     if (x < 5) {
-                        file.rewind(second);
-                        return next();
-                    } 
-
-                    
-                    this.push(file);
+                        file.fallup.write(second);
+                        
+                    } else {
+                        file.fallup.end();
+                        this.push(file);
+                    }
                     return next();
 
                 });
             })())
 
-            .pipe( streamRewind.passed() )
 
             .pipe(vinylString.dst(function(result) {
+                result.length.should.be.equal(2);
                 var result0 = result[0].contents.toString('utf8');
                 var result1 = result[1].contents.toString('utf8');
                 //result0.should.be.equal('var x = 42;0;');
-                result0.should.be.equal('var y = 42;1;2;3;4;');
-                result1.should.be.equal('var y = 42;1;2;3;4;');
+                result0.should.be.equal('var y = 42;1;2;3;4;5;');
+                result1.should.be.equal('var y = 42;1;2;3;4;5;');
                 
                 done();
             }));
@@ -113,17 +112,19 @@ describe('@only streamRewind', function() {
     });
 
     it('repipe files to stream', function(done) {
-        var pushed = false;
         vinylString.src(['var x = 42;','ciao'])
-            .pipe(streamRewind())
+            .pipe(fallup())
             .pipe(editContent(function(c) {
                 return c.toUpperCase();
             }))
             .pipe((function() {
                 return through2.obj(function (file, enc, next) {
-                    if (!pushed) {
-                        pushed = true;
-                        file.rewind.repipe(vinylString.src(['var y = 42;']));
+                    if (file.fallup.available) {
+                        vinylString.src(['var y = 42;']).pipe(
+                            file.fallup,
+                            {end:true}
+                        );
+                        file.fallup.destroy();
                     } 
 
                     this.push(file);
@@ -131,12 +132,18 @@ describe('@only streamRewind', function() {
 
                 });
             })())
-             .pipe( streamRewind.passed() )
+            
+            
             .pipe(vinylString.dst(function(result) {
-                //console.dir(result)
+                //console.dir(result[3].contents.toString('utf8'))
+                
                 var result0 = result[0].contents.toString('utf8');
                 var result1 = result[1].contents.toString('utf8');
+                
+
+                result.length.should.be.equal(3);
                 var result2 = result[2].contents.toString('utf8');
+                
                 //result0.should.be.equal('var x = 42;0;');
                 result0.should.be.equal('VAR X = 42;');
                 result1.should.be.equal('CIAO');
