@@ -32,6 +32,7 @@ describe('@quality', function() {
         checkQualityTest('requires_duplicate');
         checkQualityTest('requires_in_folder');
         checkQualityTest('requires_two');
+        checkQualityTest('dep_in_node_modules');
     });
 
 });
