@@ -42,7 +42,8 @@
     "escodegen": "~1.4.1",
     "bluebird": "~2.3.11",
     "duplexer2": "0.0.2",
-    "merge-stream": "~0.1.6"
+    "merge-stream": "~0.1.6",
+    "estemplate": "~0.4.0"
   },
   "devDependencies": {
     "chai": "~1.9.1",
