@@ -28,6 +28,16 @@ gulp.task('only', function () {
     }));
 });
 
+
+gulp.task('quality', function () {
+  return gulp.src('./test/*.js')
+    .pipe(mocha({
+      ui: 'bdd',
+      reporter: 'spec',
+      grep: '@quality'
+    }));
+});
+
 gulp.task('watch', function () {
   gulp.watch(['./lib/**/*.js', './test/**/*.js'], ['test']);
 });
