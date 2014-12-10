@@ -16,8 +16,9 @@ var path = require('path');
 var vinylFs = require('vinyl-fs');
 var vinylString = require('../lib/vinylString');
 var includeRequirements = require('../lib/include-requirements.js');
+var modulesBuilder = require('../lib/modules-builder');
 
-describe.only('@only includeRequirements', function() {
+describe('@only includeRequirements', function() {
     this.timeout(2000);
 
     it('is defined', function() {
@@ -27,14 +28,14 @@ describe.only('@only includeRequirements', function() {
 
     function check(readable, expected, done) {
         readable
-
+            .pipe(modulesBuilder.start())
             .pipe(includeRequirements(vinylFs))
             .pipe(vinylString.dst(function(result) {
                 var paths = result.map(function(f) {
 
                     return path.relative(__dirname + '/..', f.path).replace(/\\/g, '/');
                 });
-                console.dir(paths)
+                //console.dir(paths)
                 paths.sort()
                     .should.be.deep.equal(
                         expected.sort()
