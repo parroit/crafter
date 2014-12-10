@@ -82,11 +82,10 @@ describe('@only includeRequirements', function() {
     });
 
     it('add required files', function(done) {
-        var code = 'var x = require(\'./x\');';
-        checkWithCode(
-            code, [
-                'test/assets/index.js',
-                'test/assets/x.js'
+       checkWithFile(
+            __dirname + '/assets/quality_tests/simple_requirement/index_source.js', [
+                'test/assets/quality_tests/simple_requirement/index_source.js',
+                'test/assets/quality_tests/simple_requirement/x.js'
             ],
             done
         );
@@ -103,10 +102,10 @@ describe('@only includeRequirements', function() {
 
     it('require deep files', function(done) {
         checkWithFile(
-            __dirname + '/assets/requires_two.js', [
-                'test/assets/requires_two.js',
-                'test/assets/x.js',
-                'test/assets/y.js'
+            __dirname + '/assets/quality_tests/requires_two/index_source.js', [
+                'test/assets/quality_tests/requires_two/index_source.js',
+                'test/assets/quality_tests/requires_two/x.js',
+                'test/assets/quality_tests/requires_two/y.js'
             ],
             done
         );
@@ -116,11 +115,11 @@ describe('@only includeRequirements', function() {
 
     it('require in subfolder', function(done) {
         checkWithFile(
-            __dirname + '/assets/requires_in_folder.js',
+            __dirname + '/assets/quality_tests/requires_in_folder/index_source.js',
             [
-                'test/assets/requires_in_folder.js',
-                'test/assets/sub/x.js',
-                'test/assets/y.js'
+                'test/assets/quality_tests/requires_in_folder/index_source.js',
+                'test/assets/quality_tests/requires_in_folder/sub/x.js',
+                'test/assets/quality_tests/requires_in_folder/y.js'
             ],
             done
         );
@@ -129,11 +128,11 @@ describe('@only includeRequirements', function() {
 
     it('require by index.js', function(done) {
         checkWithFile(
-            __dirname + '/assets/requires_by_index.js',
+            __dirname + '/assets/quality_tests/requires_by_index/index_source.js',
             [
-                'test/assets/requires_by_index.js',
-                'test/assets/y.js',
-                'test/assets/sub2/index.js'
+                'test/assets/quality_tests/requires_by_index/index_source.js',
+                'test/assets/quality_tests/requires_by_index/y.js',
+                'test/assets/quality_tests/requires_by_index/sub2/index.js'
             ],
             done
         );
@@ -142,10 +141,10 @@ describe('@only includeRequirements', function() {
 
     it('dont require multiple times', function(done) {
         checkWithFile(
-            __dirname + '/assets/requires_duplicate.js',
+            __dirname + '/assets/quality_tests/requires_duplicate/index_source.js',
             [
-                'test/assets/requires_duplicate.js',
-                'test/assets/y.js'
+                'test/assets/quality_tests/requires_duplicate/index_source.js',
+                'test/assets/quality_tests/requires_duplicate/y.js'
             ],
             done
         );

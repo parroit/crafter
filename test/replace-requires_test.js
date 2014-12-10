@@ -51,7 +51,7 @@ describe('@only replace-requires', function() {
 
     function checkWithCode(code, expected, done) {
         check(
-            vinylString.src(code, __dirname + '/assets/index.js'),
+            vinylString.src(code, __dirname + '/assets/quality_tests/simple_requirement/index_source.js'),
             expected,
             done
         );

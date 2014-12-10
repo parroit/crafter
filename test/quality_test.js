@@ -31,6 +31,7 @@ describe('@quality', function() {
         checkQualityTest('requires_by_index');
         checkQualityTest('requires_duplicate');
         checkQualityTest('requires_in_folder');
+        checkQualityTest('requires_two');
     });
 
 });

@@ -27,7 +27,7 @@ describe('@only requireFinder', function() {
     });
 
     function checkWithCode(code, expected, done) {
-        vinylString.src(code, __dirname + '/assets/index.js')
+        vinylString.src(code, __dirname + '/assets/quality_tests/simple_requirement/index_source.js')
             .pipe(astParser())
             .pipe(astVisitor(requireFinder))
             .pipe(vinylString.dst(function(result) {
@@ -40,7 +40,9 @@ describe('@only requireFinder', function() {
                     var filePath = result[0].requires.dependencies[file];
                     result[0].requires.dependencies[file] = path.relative(__dirname + '/..', filePath).replace(/\\/g, '/');
                 });
-                
+                //console.dir(result.map(function(r){return r.requires;}));
+
+                //console.dir(expected)
                 result[0].requires.should.be.deep.equal(expected);
                 done();
             }));
@@ -51,7 +53,7 @@ describe('@only requireFinder', function() {
         var code = 'var x = require(\'./x\');';
         checkWithCode(code, {
             core: {},
-            relatives: {'./x': 'test/assets/x.js'},
+            relatives: {'./x': 'test/assets/quality_tests/simple_requirement/x.js'},
             dependencies: {}
         },done);
     });

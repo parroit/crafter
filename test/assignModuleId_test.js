@@ -42,8 +42,8 @@ describe('@only assignModuleId', function() {
                     return a.id - b.id;
                 });
 
-               // console.log(JSON.stringify(ids, null, 4))
-               // console.log(JSON.stringify(expected, null, 4))
+                //console.log(JSON.stringify(ids, null, 4))
+                //console.log(JSON.stringify(expected, null, 4))
                 ids.should.be.deep.equal(
                     expected
                 );
@@ -62,7 +62,7 @@ describe('@only assignModuleId', function() {
 
     function checkWithCode(code, expected, done) {
         check(
-            vinylString.src(code, __dirname + '/assets/index.js'),
+            vinylString.src(code, __dirname + '/assets/simple_requirement/index_source.js'),
             expected,
             done
         );
@@ -72,7 +72,7 @@ describe('@only assignModuleId', function() {
     it('files without deps', function(done) {
         checkWithCode(
             'var x = 42;', [{
-                path: 'test/assets/index.js',
+                path: 'test/assets/simple_requirement/index_source.js',
                 id: 0
             }],
             done
@@ -80,12 +80,13 @@ describe('@only assignModuleId', function() {
     });
 
     it('multiple files without deps', function(done) {
-        checkWithCode(
-            ['var x = 42;', 'var z = 42;'], [{
-                path: 'test/assets/index.js',
+        checkWithFile(
+            __dirname + '/assets/quality_tests/multiple_files_without_deps/*source.js',
+            [{
+                path: 'test/assets/quality_tests/multiple_files_without_deps/file1_source.js',
                 id: 0
             }, {
-                path: 'test/assets/index.js',
+                path: 'test/assets/quality_tests/multiple_files_without_deps/file2_source.js',
                 id: 1
             }],
             done
@@ -93,13 +94,13 @@ describe('@only assignModuleId', function() {
     });
 
     it('add required files', function(done) {
-        var code = 'var x = require(\'./x\');';
-        checkWithCode(
-            code, [{
-                    path: 'test/assets/index.js',
+        checkWithFile(
+            __dirname + '/assets/quality_tests/simple_requirement/index_source.js',
+            [{
+                    path: 'test/assets/quality_tests/simple_requirement/index_source.js',
                     id: 0
                 }, {
-                    path: 'test/assets/x.js',
+                    path: 'test/assets/quality_tests/simple_requirement/x.js',
                     id: 1
                 }
 
@@ -111,7 +112,7 @@ describe('@only assignModuleId', function() {
     it('add required node_modules', function(done) {
         var code = 'var x = require(\'acorn\');';
         checkWithCode(code, [{
-                path: 'test/assets/index.js',
+                path: 'test/assets/simple_requirement/index_source.js',
                 id: 0
             }, {
                 path: 'node_modules/acorn/acorn.js',
@@ -124,14 +125,14 @@ describe('@only assignModuleId', function() {
 
     it('require deep files', function(done) {
         checkWithFile(
-            __dirname + '/assets/requires_two.js', [{
-                    path: 'test/assets/requires_two.js',
+            __dirname + '/assets/quality_tests/requires_two/index_source.js', [{
+                    path: 'test/assets/quality_tests/requires_two/index_source.js',
                     id: 0
                 }, {
-                    path: 'test/assets/x.js',
+                    path: 'test/assets/quality_tests/requires_two/x.js',
                     id: 1
                 }, {
-                    path: 'test/assets/y.js',
+                    path: 'test/assets/quality_tests/requires_two/y.js',
                     id: 2
                 }
 
@@ -144,14 +145,14 @@ describe('@only assignModuleId', function() {
 
     it('require in subfolder', function(done) {
         checkWithFile(
-            __dirname + '/assets/requires_in_folder.js', [{
-                    path: 'test/assets/requires_in_folder.js',
+            __dirname + '/assets/quality_tests/requires_in_folder/index_source.js', [{
+                    path: 'test/assets/quality_tests/requires_in_folder/index_source.js',
                     id: 0
                 }, {
-                    path: 'test/assets/sub/x.js',
+                    path: 'test/assets/quality_tests/requires_in_folder/sub/x.js',
                     id: 1
                 }, {
-                    path: 'test/assets/y.js',
+                    path: 'test/assets/quality_tests/requires_in_folder/y.js',
                     id: 2
                 }
 
@@ -163,14 +164,14 @@ describe('@only assignModuleId', function() {
 
     it('require by index.js', function(done) {
         checkWithFile(
-            __dirname + '/assets/requires_by_index.js', [{
-                    path: 'test/assets/requires_by_index.js',
+            __dirname + '/assets/quality_tests/requires_by_index/index_source.js', [{
+                    path: 'test/assets/quality_tests/requires_by_index/index_source.js',
                     id: 0
                 }, {
-                    path: 'test/assets/y.js',
+                    path: 'test/assets/quality_tests/requires_by_index/y.js',
                     id: 1
                 }, {
-                    path: 'test/assets/sub2/index.js',
+                    path: 'test/assets/quality_tests/requires_by_index/sub2/index.js',
                     id: 2
                 }
 
@@ -182,11 +183,11 @@ describe('@only assignModuleId', function() {
 
     it('dont require multiple times', function(done) {
         checkWithFile(
-            __dirname + '/assets/requires_duplicate.js', [{
-                    path: 'test/assets/requires_duplicate.js',
+            __dirname + '/assets/quality_tests/requires_duplicate/index_source.js', [{
+                    path: 'test/assets/quality_tests/requires_duplicate/index_source.js',
                     id: 0
                 }, {
-                    path: 'test/assets/y.js',
+                    path: 'test/assets/quality_tests/requires_duplicate/y.js',
                     id: 1
                 }
 
