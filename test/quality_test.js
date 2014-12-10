@@ -19,25 +19,31 @@ var vinylString = require('../lib/vinylString');
 var includeRequirements = require('../lib/include-requirements.js');
 var modulesBuilder = require('../lib/modules-builder');
 var codeGenerator = require('../lib/code-generator');
+var astBodyConcat = require('../lib/ast-body-concat');
 
 var functionWrapper = require('../lib/declare-function-wrapper');
 
-describe('@quality', function() {
-
-    describe('result body', function() {
-        checkQualityTest('file_without_deps');
-        checkQualityTest('multiple_files_without_deps');
-        checkQualityTest('simple_requirement');
-        checkQualityTest('requires_by_index');
-        checkQualityTest('requires_duplicate');
-        checkQualityTest('requires_in_folder');
-        checkQualityTest('requires_two');
-        checkQualityTest('dep_in_node_modules');
+function checkQuality(checkFn, checkName) {
+    describe(checkName, function() {
+        checkQualityTest(checkFn, 'file_without_deps');
+        checkQualityTest(checkFn, 'multiple_files_without_deps');
+        checkQualityTest(checkFn, 'simple_requirement');
+        checkQualityTest(checkFn, 'requires_by_index');
+        checkQualityTest(checkFn, 'requires_duplicate');
+        checkQualityTest(checkFn, 'requires_in_folder');
+        checkQualityTest(checkFn, 'requires_two');
+        checkQualityTest(checkFn, 'dep_in_node_modules');
     });
+}
+
+describe('@quality', function() {
+    checkQuality(checkWithFile, 'result body');
+    checkQuality(checkConcatenations, 'results concatenation');
 
 });
 
-function check(readable, expected, done) {
+function checkWithFile(path, expected, done) {
+    var readable = vinylFs.src(path);
     var expectasions;
     if (typeof expected === 'string') {
         expectasions = [expected];
@@ -52,7 +58,9 @@ function check(readable, expected, done) {
         .pipe(modulesBuilder.assignId())
         .pipe(modulesBuilder.replaceRequires())
         .pipe(functionWrapper())
-        .pipe(codeGenerator())
+
+
+    .pipe(codeGenerator())
         .pipe(vinylString.dst(function(result) {
             result.length.should.be.equal(expectasions.length);
             var i = expectasions.length;
@@ -65,31 +73,56 @@ function check(readable, expected, done) {
 
 }
 
-function checkWithFile(path, expected, done) {
-    check(
-        vinylFs.src(path),
-        expected,
-        done
-    );
+
+function checkConcatenations(path, expected, done) {
+    var readable = vinylFs.src(path);
+    var expectasions;
+    if (typeof expected === 'string') {
+        expectasions = [expected];
+    } else {
+        expectasions = expected;
+    }
+
+
+    readable
+        .pipe(modulesBuilder.start())
+        .pipe(includeRequirements(vinylFs))
+        .pipe(modulesBuilder.assignId())
+        .pipe(modulesBuilder.replaceRequires())
+        .pipe(functionWrapper())
+        .pipe(astBodyConcat(__dirname + '/test/assets/results.js'))
+        .pipe(codeGenerator())
+        .pipe(vinylString.dst(function(result) {
+            result.length.should.be.equal(1);
+            result[0].path.should.be.equal(__dirname + '/test/assets/results.js');
+            expectasions = ('\n' + expectasions.join('\n')).replace(/\n/g, '\n        ');
+
+            var expectedResult = '(function module_preamble() {\n' +
+                '    (function modules() {' + 
+                    expectasions + '\n'+
+                '    }());\n' +
+                '    function define(id, factory) {\n' +
+                '        return modules[id] || (modules[id] = factory({}, {}));\n' +
+                '    }\n' +
+                '}());';
+            var actual = result[0].contents.toString('utf8');
+            
+            actual.should.be.equal(expectedResult);
+
+            done();
+        }));
 
 }
 
-function checkWithCode(code, expected, done) {
-    check(
-        vinylString.src(code, __dirname + '/assets/index.js'),
-        expected,
-        done
-    );
 
-}
 
-function checkQualityTest(test) {
+function checkQualityTest(checkFn, test) {
     it(test, function(done) {
         var pattern = __dirname + '/assets/quality_tests/' + test + '/*_source.js';
         var expected = fs.readFileSync(__dirname + '/assets/quality_tests/' + test + '/expected.js', 'utf8');
         var exps = expected.split('\n\n');
 
-        checkWithFile(
+        checkFn(
             pattern,
             exps,
             done
