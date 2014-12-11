@@ -25,7 +25,7 @@ describe('@only astVisitor', function() {
 
     it('run visitors on each node', function(done) {
         var x = 0;
-        vinylString.src('var x = 42;')
+        vinylString.src('var x = 42;','assets/index.js')
             .pipe(astParser())
             .pipe(astVisitor(function (node) {
                 if (node.type === 'VariableDeclaration') {

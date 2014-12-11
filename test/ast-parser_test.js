@@ -52,7 +52,7 @@ describe('@only ast-parser', function() {
     });
 
     it('return ast', function(done) {
-        vinylString.src('var x = 42;')
+        vinylString.src('var x = 42;','assets/index.js')
             .pipe(astParser({loc:false}))
             .pipe(vinylString.dst(function(result) {
                 result = result[0].ast;
