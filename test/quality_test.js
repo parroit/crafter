@@ -97,20 +97,26 @@ function checkConcatenations(path, expected, done) {
         .pipe(vinylString.dst(function(result) {
             result.length.should.be.equal(1);
             result[0].path.should.be.equal(__dirname + '/test/assets/results.js');
-            expectasions = ('\n' + expectasions.join('\n')).replace(/\n/g, '\n        ');
+            expectasions = ('\n' + expectasions.join('\n'));
 
-            var expectedResult = '(function module_preamble() {\n' +
-                '    (function modules() {' + 
-                    expectasions + '\n'+
-                '    }());\n' +
-                '    function define(id, factory) {\n' +
-                '        return modules[id] || (modules[id] = factory({}, {}));\n' +
-                '    }\n' +
-                '}());';
-            //expectedResult = expectedResult.replace(/\n/g,os.EOL);
-            var actual = result[0].contents.toString('utf8').replace(/\r/g,'');
+            var expectedResult = fs.readFileSync(__dirname + '/../lib/body-concat.jst','utf8');
+            expectedResult = expectedResult.replace('{%= modules %}', '{\n'+expectasions+'\n}\n');
             
-            actual.should.be.equal(expectedResult.replace(/\r/g,''));
+            //expectedResult = expectedResult.replace(/\n/g,os.EOL);
+            var actual = result[0].contents.toString('utf8');
+            actual = actual.replace(/\r/g,'');
+            expectedResult = expectedResult.replace(/\r/g,'');
+            
+            actual = actual.replace(/    /g,'');
+            expectedResult = expectedResult.replace(/    /g,'');
+            actual = actual.replace(/\t/g,'');
+            expectedResult = expectedResult.replace(/\t/g,'');
+            actual = actual.replace(/\n\n/g,'\n');
+            expectedResult = expectedResult.replace(/\n\n/g,'\n');
+            expectedResult = expectedResult.replace(/\s*\/\/.*\n/g,'\n');
+            
+
+            actual.should.be.equal(expectedResult);
 
             done();
         }));

@@ -1,0 +1,34 @@
+function module_preamble() {
+	var loadedModules = {};
+	var modulesFactories = {};
+	define_modules();
+	//jshint ignore:start
+	function define_modules() {%= modules %}
+	//jshint ignore:end
+	
+	function require() {
+        if (id in loadedModules) {
+	    	return loadedModules[id].exports;
+	    }
+
+	    if (!(id in modulesFactories)) {
+	    	throw new Error('Module "' + id + '" not found.');
+	    }
+
+	    var exports = {};
+	    var module = {
+	    	exports: exports,
+	    	id: id
+	    };
+	    var factory = modulesFactories[id];
+	    loadedModules[id] = module;
+
+	    factory(module, exports);
+	    
+	}
+
+	function define(id, factory) {
+	    modulesFactories[id] = factory;
+	}
+}
+module_preamble();
