@@ -8,7 +8,7 @@ function module_preamble() {
 	function define_modules() {%= modules %}
 	//jshint ignore:end
 	
-	function require() {
+	function require(id) {
         if (id in loadedModules) {
 	    	return loadedModules[id].exports;
 	    }

@@ -11,7 +11,9 @@
     "type": "git",
     "url": "git://github.com/parroit/crafter.git"
   },
-  "bin": {"crafter": "bin/cli.js"},
+  "bin": {
+    "crafter": "bin/cli.js"
+  },
   "bugs": {
     "url": "https://github.com/parroit/crafter/issues"
   },
@@ -21,7 +23,7 @@
       "url": "http://opensource.org/licenses/MIT"
     }
   ],
-  "main": "lib/crafter",
+  "main": "lib/crafter.js",
   "engines": {
     "node": ">=0.10.26",
     "npm": ">=1.4.3"
@@ -31,21 +33,23 @@
   },
   "dependencies": {
     "acorn": "^0.9.0",
+    "bluebird": "~2.3.11",
+    "commander": "~2.5.0",
     "concat-stream": "^1.4.7",
+    "duplexer2": "0.0.2",
+    "escodegen": "~1.4.1",
+    "estemplate": "~0.4.0",
     "fastqueue": "^0.1.0",
+    "merge-stream": "~0.1.6",
+    "read-package-json": "^1.2.7",
+    "relative-package": "^1.0.0",
     "resolve": "^1.0.0",
     "stream-array": "^1.0.1",
+    "through": "~2.3.6",
     "through2": "^0.6.3",
     "vinyl": "^0.4.6",
     "vinyl-fs": "^0.3.13",
-    "walk-ast": "0.0.2",
-    "through": "~2.3.6",
-    "escodegen": "~1.4.1",
-    "bluebird": "~2.3.11",
-    "duplexer2": "0.0.2",
-    "merge-stream": "~0.1.6",
-    "estemplate": "~0.4.0",
-    "commander": "~2.5.0"
+    "walk-ast": "0.0.2"
   },
   "devDependencies": {
     "chai": "~1.9.1",
