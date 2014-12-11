@@ -20,7 +20,7 @@ var includeRequirements = require('../lib/include-requirements.js');
 var modulesBuilder = require('../lib/modules-builder');
 var codeGenerator = require('../lib/code-generator');
 var astBodyConcat = require('../lib/ast-body-concat');
-
+var os = require('os');
 var functionWrapper = require('../lib/declare-function-wrapper');
 
 function checkQuality(checkFn, checkName) {
@@ -63,10 +63,12 @@ function checkWithFile(path, expected, done) {
     .pipe(codeGenerator())
         .pipe(vinylString.dst(function(result) {
             result.length.should.be.equal(expectasions.length);
+
             var i = expectasions.length;
             while (i--) {
-                var actual = result[i].contents.toString('utf8');
-                actual.should.be.equal(expectasions[i]);
+                var actual = result[i].contents.toString('utf8').replace(/\r/g,'');
+                
+                actual.should.be.equal(expectasions[i].replace(/\r/g,''));
             }
             done();
         }));
@@ -105,9 +107,10 @@ function checkConcatenations(path, expected, done) {
                 '        return modules[id] || (modules[id] = factory({}, {}));\n' +
                 '    }\n' +
                 '}());';
-            var actual = result[0].contents.toString('utf8');
+            //expectedResult = expectedResult.replace(/\n/g,os.EOL);
+            var actual = result[0].contents.toString('utf8').replace(/\r/g,'');
             
-            actual.should.be.equal(expectedResult);
+            actual.should.be.equal(expectedResult.replace(/\r/g,''));
 
             done();
         }));
@@ -120,8 +123,8 @@ function checkQualityTest(checkFn, test) {
     it(test, function(done) {
         var pattern = __dirname + '/assets/quality_tests/' + test + '/*_source.js';
         var expected = fs.readFileSync(__dirname + '/assets/quality_tests/' + test + '/expected.js', 'utf8');
-        var exps = expected.split('\n\n');
-
+        var exps = expected.replace(/\r/g,'').split('\n\n');
+        //console.dir(exps)
         checkFn(
             pattern,
             exps,
