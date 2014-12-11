@@ -53,7 +53,7 @@ describe('@only ast-parser', function() {
 
     it('return ast', function(done) {
         vinylString.src('var x = 42;')
-            .pipe(astParser())
+            .pipe(astParser({loc:false}))
             .pipe(vinylString.dst(function(result) {
                 result = result[0].ast;
                 result.should.be.deep.equal(expected);

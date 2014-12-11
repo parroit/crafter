@@ -27,9 +27,18 @@ describe('@only requireFinder', function() {
     });
 
     function checkWithCode(code, expected, done) {
+        var options;
+        if (typeof code === 'string') {
+            options = {core:{}};
+        } else {
+            options = code.options;
+            code = code.code;
+        }
+
+
         vinylString.src(code, __dirname + '/assets/quality_tests/simple_requirement/index_source.js')
             .pipe(astParser())
-            .pipe(astVisitor(requireFinder))
+            .pipe(astVisitor(requireFinder.withOptions(options)))
             .pipe(vinylString.dst(function(result) {
                 
                 Object.keys(result[0].requires.relatives).forEach(function(file){
@@ -40,9 +49,10 @@ describe('@only requireFinder', function() {
                     var filePath = result[0].requires.dependencies[file];
                     result[0].requires.dependencies[file] = path.relative(__dirname + '/..', filePath).replace(/\\/g, '/');
                 });
-                //console.dir(result.map(function(r){return r.requires;}));
 
+                //console.dir(result[0].requires);
                 //console.dir(expected)
+
                 result[0].requires.should.be.deep.equal(expected);
                 done();
             }));
@@ -62,6 +72,40 @@ describe('@only requireFinder', function() {
         var code = 'var x = require(\'fs\');';
         checkWithCode(code, {
             core: {'fs': true},
+            relatives: {},
+            dependencies: {}
+        },done);
+    });
+
+    it('replace core files as configured', function(done) {
+        var code = 'var x = require(\'fs\');';
+        checkWithCode(
+            {
+                code:code,
+                options: {
+                    core: {
+                        fs: 'acorn'
+                    }
+                }
+            }, {
+            core: {},
+            relatives: {},
+            dependencies: {'acorn': 'node_modules/acorn/acorn.js'}
+        },done);
+    });
+
+    it('ignore core files as configured', function(done) {
+        var code = 'var x = require(\'fs\');';
+        checkWithCode(
+            {
+                code:code,
+                options: {
+                    core: {
+                        fs: 'ignore'
+                    }
+                }
+            }, {
+            core: {fs: true},
             relatives: {},
             dependencies: {}
         },done);
