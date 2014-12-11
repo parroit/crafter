@@ -8,8 +8,20 @@
 
 'use strict';
 
+var crafter = require('./lib/crafter');
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
+
+gulp.task('craft', function () {
+  return gulp.src('./node_modules/concat-stream/index.js')
+    .pipe(crafter.bundle({
+      target: 'concat.js',
+      exports: {
+        'index.js': null
+      }
+    }))
+    .pipe(gulp.dest('./test/assets'));
+});
 
 gulp.task('test', function () {
   return gulp.src('./test/*.js')

@@ -2,6 +2,8 @@ function module_preamble() {
 	var loadedModules = {};
 	var modulesFactories = {};
 	define_modules();
+	<%= exportCode %>
+
 	//jshint ignore:start
 	function define_modules() {%= modules %}
 	//jshint ignore:end
@@ -21,14 +23,29 @@ function module_preamble() {
 	    	id: id
 	    };
 	    var factory = modulesFactories[id];
+	    
 	    loadedModules[id] = module;
 
 	    factory(module, exports);
 	    
+	    return module.exports;
 	}
 
-	function define(id, factory) {
+	function _define(id, factory) {
 	    modulesFactories[id] = factory;
 	}
 }
-module_preamble();
+
+(function (root, factory) {
+    var exported = factory();
+
+    if (typeof define === 'function' && define.amd) {
+        define('<%= outputName %>', [], function () {
+            return exported;
+        });
+    } else if (typeof exports === 'object') {
+        module.exports = exported;
+    } else {
+        root['<%= outputName %>'] = factory();
+    }
+}(this, module_preamble));

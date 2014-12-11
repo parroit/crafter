@@ -20,6 +20,7 @@ var includeRequirements = require('../lib/include-requirements.js');
 var modulesBuilder = require('../lib/modules-builder');
 var codeGenerator = require('../lib/code-generator');
 var astBodyConcat = require('../lib/ast-body-concat');
+var crafter = require('../lib/crafter');
 var os = require('os');
 var functionWrapper = require('../lib/declare-function-wrapper');
 
@@ -39,6 +40,7 @@ function checkQuality(checkFn, checkName) {
 describe('@quality', function() {
     checkQuality(checkWithFile, 'result body');
     checkQuality(checkConcatenations, 'results concatenation');
+    checkQuality(checkBundle, 'bundles generation');
 
 });
 
@@ -66,14 +68,31 @@ function checkWithFile(path, expected, done) {
 
             var i = expectasions.length;
             while (i--) {
-                var actual = result[i].contents.toString('utf8').replace(/\r/g,'');
-                
-                actual.should.be.equal(expectasions[i].replace(/\r/g,''));
+                var actual = result[i].contents.toString('utf8').replace(/\r/g, '');
+
+                actual.should.be.equal(expectasions[i].replace(/\r/g, ''));
             }
             done();
         }));
 
 }
+
+
+
+function checkBundle(path, expected, done) {
+    var expectasions;
+    if (typeof expected === 'string') {
+        expectasions = [expected];
+    } else {
+        expectasions = expected;
+    }
+
+    vinylFs.src(path)
+        .pipe(crafter.bundle(__dirname + '/test/assets/results.js'))
+        .pipe(vinylString.dst(compareResult(expectasions,done)));
+
+}
+
 
 
 function checkConcatenations(path, expected, done) {
@@ -94,42 +113,48 @@ function checkConcatenations(path, expected, done) {
         .pipe(functionWrapper())
         .pipe(astBodyConcat(__dirname + '/test/assets/results.js'))
         .pipe(codeGenerator())
-        .pipe(vinylString.dst(function(result) {
-            result.length.should.be.equal(1);
-            result[0].path.should.be.equal(__dirname + '/test/assets/results.js');
-            expectasions = ('\n' + expectasions.join('\n'));
 
-            var expectedResult = fs.readFileSync(__dirname + '/../lib/body-concat.jst','utf8');
-            expectedResult = expectedResult.replace('{%= modules %}', '{\n'+expectasions+'\n}\n');
-            
-            //expectedResult = expectedResult.replace(/\n/g,os.EOL);
-            var actual = result[0].contents.toString('utf8');
-            actual = actual.replace(/\r/g,'');
-            expectedResult = expectedResult.replace(/\r/g,'');
-            
-            actual = actual.replace(/    /g,'');
-            expectedResult = expectedResult.replace(/    /g,'');
-            actual = actual.replace(/\t/g,'');
-            expectedResult = expectedResult.replace(/\t/g,'');
-            actual = actual.replace(/\n\n/g,'\n');
-            expectedResult = expectedResult.replace(/\n\n/g,'\n');
-            expectedResult = expectedResult.replace(/\s*\/\/.*\n/g,'\n');
-            
-
-            actual.should.be.equal(expectedResult);
-
-            done();
-        }));
+    .pipe(vinylString.dst(compareResult(expectasions,done)));
 
 }
 
+function compareResult(expectasions, done) {
+    return function(result){
+        result.length.should.be.equal(1);
+        result[0].path.should.be.equal(__dirname + '/test/assets/results.js');
+        expectasions = ('\n' + expectasions.join('\n'));
 
+        var expectedResult = fs.readFileSync(__dirname + '/../lib/body-concat.jst', 'utf8');
+        expectedResult = expectedResult.replace('{%= modules %}', '{\n' + expectasions + '\n}\n');
+        expectedResult = expectedResult.replace(/<%= exportCode %>/g, '');
+        expectedResult = expectedResult.replace(/<%= outputName %>/g, 'results');
+
+        //expectedResult = expectedResult.replace(/\n/g,os.EOL);
+        var actual = result[0].contents.toString('utf8');
+        actual = actual.replace(/\r/g, '');
+        expectedResult = expectedResult.replace(/\r/g, '');
+
+        actual = actual.replace(/    /g, '');
+        expectedResult = expectedResult.replace(/    /g, '');
+        actual = actual.replace(/\t/g, '');
+        expectedResult = expectedResult.replace(/\t/g, '');
+        actual = actual.replace(/\n\n/g, '\n');
+        expectedResult = expectedResult.replace(/\n\n/g, '\n');
+        expectedResult = expectedResult.replace(/\s*\/\/.*\n/g, '\n');
+
+
+        actual.should.be.equal(expectedResult);
+
+        done();    
+    };
+    
+}
 
 function checkQualityTest(checkFn, test) {
     it(test, function(done) {
         var pattern = __dirname + '/assets/quality_tests/' + test + '/*_source.js';
         var expected = fs.readFileSync(__dirname + '/assets/quality_tests/' + test + '/expected.js', 'utf8');
-        var exps = expected.replace(/\r/g,'').split('\n\n');
+        var exps = expected.replace(/\r/g, '').split('\n\n');
         //console.dir(exps)
         checkFn(
             pattern,

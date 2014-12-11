@@ -1,3 +1,3 @@
-define(0, function (module, exports) {
+_define(0, function (module, exports) {
     var x = 42;
 });
