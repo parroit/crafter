@@ -15,6 +15,22 @@ module.exports = function(sourceFile) {
 	createBundle(output, source);
 };
 
+function sharedStart(array){
+    var A= array.slice(0).sort(), 
+    word1= A[0], word2= A[A.length-1], 
+    L= word1.length, i= 0;
+    while(i<L && word1.charAt(i)=== word2.charAt(i)) i++;
+    return word1.substring(0, i);
+}
+
+function stringRepeat(source, count){
+    var result = '';
+    while(count--) {
+        result += source;
+    }
+    return result;
+}
+
 function createBundle(output, sourceFileGlob) {
     var outputPath = path.resolve(process.cwd(), output);
     winston.info('Reading source files ', sourceFileGlob);
@@ -34,13 +50,25 @@ function createBundle(output, sourceFileGlob) {
                 return next();
             }
             var modules = file.builder.modules;
-            winston.info('Bundle created at ' + outputPath);
-            winston.info('%d files included in bundle.', Object.keys(modules).length);
-            winston.debug(Object.keys(modules).map(function(m) {
-                var relPath = path.relative(file.base, m);
-                relPath = relPath.replace(/\\?node_modules\\/g, '->');
+            var modulesPath = Object.keys(modules);
+            modulesPath.sort();
 
-                return '\t - ' + relPath;
+            winston.info('Bundle created at ' + outputPath);
+            winston.info('%d files included in bundle.', modulesPath.length);
+            var lastPath = '';
+            winston.debug('\n' +modulesPath.map(function(m) {
+                var relPath = path.relative(file.base, m);
+                relPath = relPath.replace(/[\\/]?node_modules[\\/]/g, '->');
+
+                var commonParts = sharedStart([relPath, lastPath]);
+                var commonFolder = relPath.slice(0, commonParts.length).lastIndexOf('/');
+                if (commonFolder < 0) {
+                    commonFolder = 0;
+                }
+                var newPart = stringRepeat(' ',commonFolder)+relPath.slice(commonFolder);
+
+                lastPath = relPath;
+                return '\t' + newPart;
             }).join('\n'));
 
             this.push(file); // pass along

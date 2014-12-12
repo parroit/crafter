@@ -11,7 +11,7 @@ var readJson = require('read-package-json');
 var vinylFs = require('vinyl-fs');
 var winston = require('winston');
 var cliff = require('cliff');
-
+var fs = require('fs');
 var crafter = require('../lib/crafter');
 var bundle = require('./crafter-bundle');
 var cfg = require('./crafter-cfg');
@@ -73,4 +73,9 @@ function runProgram(er, data) {
 }
 
 var packagePath = relativePackage(process.cwd());
-readJson(packagePath, winston.error, false, runProgram);
+if (!fs.existsSync(packagePath)) {
+    winston.error('Cannot find package.json.');
+} else {
+    readJson(packagePath, winston.error, false, runProgram);    
+}
+
