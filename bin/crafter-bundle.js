@@ -6,6 +6,7 @@ var crafter = require('../lib/crafter');
 var winston = require('winston');
 var through2 = require('through2');
 var path = require('path');
+var chalk = require('chalk');
 
 module.exports = function(sourceFile) {
 	var output = program.output || program.info.name + '-' +
@@ -58,15 +59,22 @@ function createBundle(output, sourceFileGlob) {
             var lastPath = '';
             winston.debug('\n' +modulesPath.map(function(m) {
                 var relPath = path.relative(file.base, m);
-                relPath = relPath.replace(/[\\/]?node_modules[\\/]/g, '->');
+                
+                relPath = relPath.replace(/[\\/]?node_modules[\\/]/g, '>');
+                
 
                 var commonParts = sharedStart([relPath, lastPath]);
-                var commonFolder = relPath.slice(0, commonParts.length).lastIndexOf('/');
+                var commonFolderSep = relPath.slice(0, commonParts.length).lastIndexOf('/');
+                var commonModuleSep = relPath.slice(0, commonParts.length).lastIndexOf('>');
+                var commonFolder = Math.max(commonFolderSep, commonModuleSep);
                 if (commonFolder < 0) {
                     commonFolder = 0;
                 }
                 var newPart = stringRepeat(' ',commonFolder)+relPath.slice(commonFolder);
-
+                
+                newPart = newPart.replace(/>([\w\-_]+)/g,function(match, name, sep){
+                    return '->'+chalk.blue.bold(name);
+                });
                 lastPath = relPath;
                 return '\t' + newPart;
             }).join('\n'));
