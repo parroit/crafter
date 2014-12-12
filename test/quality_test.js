@@ -157,7 +157,6 @@ function checkQualityTest(checkFn, test) {
         var pattern = __dirname + '/assets/quality_tests/' + test + '/*_source.js';
         var expected = fs.readFileSync(__dirname + '/assets/quality_tests/' + test + '/expected.js', 'utf8');
         var exps = expected.replace(/\r/g, '').split('\n\n');
-        //console.dir(exps)
         checkFn(
             pattern,
             exps,

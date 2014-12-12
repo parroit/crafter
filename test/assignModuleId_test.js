@@ -44,8 +44,6 @@ describe('@only assignModuleId', function() {
                     return a.id - b.id;
                 });
 
-                //console.log(JSON.stringify(ids, null, 4))
-                //console.log(JSON.stringify(expected, null, 4))
                 ids.should.be.deep.equal(
                     expected
                 );

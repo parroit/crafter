@@ -50,7 +50,8 @@
     "vinyl": "^0.4.6",
     "vinyl-fs": "^0.3.13",
     "walk-ast": "0.0.2",
-    "browser-builtins": "~3.2.0"
+    "browser-builtins": "~3.2.0",
+    "winston": "~0.8.3"
   },
   "devDependencies": {
     "chai": "~1.9.1",

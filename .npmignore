@@ -5,3 +5,4 @@ node_modules
 
 # don't ignore .npmignore files
 !.npmignore
+crafter-0_1_0.js

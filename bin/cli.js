@@ -11,25 +11,33 @@ var relativePackage = require('relative-package');
 var readJson = require('read-package-json');
 var vinylFs = require('vinyl-fs');
 var crafter = require('../lib/crafter');
+var winston = require('winston');
 
+winston.level = 'debug';
+winston.cli();
 
 function createBundle(output, sourceFileGlob) {
     var outputPath = path.resolve(process.cwd(), output);
-    console.log('Reading source files ', sourceFileGlob);
-    console.log('Writing result to ', outputPath);
+    winston.info('Reading source files ', sourceFileGlob);
+    winston.info('Writing result to ', outputPath);
 
+    var core = program.core || {};
 
     vinylFs.src(sourceFileGlob)
-        .pipe(crafter.bundle(path.basename(outputPath)))
+        .pipe(crafter.bundle({
+            target: outputPath,
+            core: core
+
+        }))
         .pipe(through2.obj(function visit(file, enc, next) {
             if (file.isNull()) {
                 this.push(file); // pass along
                 return next();
             }
-            //console.dir(file.contents.toString('utf8'));
-            console.log('Bundle created at ' + outputPath);
-
-            console.log(Object.keys(file.builder.modules).map(function(m) {
+            var modules = file.builder.modules;
+            winston.info('Bundle created at ' + outputPath);
+            winston.info('%d files included in bundle.', Object.keys(modules).length);
+            winston.debug(Object.keys(modules).map(function(m) {
                 var relPath = path.relative(file.base, m);
                 relPath = relPath.replace(/\\?node_modules\\/g, '->');
 
@@ -46,22 +54,25 @@ function createBundle(output, sourceFileGlob) {
 }
 
 function writeCoreConfig(sourceFileGlob) {
-    console.log('Reading source files ', sourceFileGlob);
+    winston.info('Reading source files ', sourceFileGlob);
 
     var coreConfig;
 
-
+    var core = program.core || {};
+    
     vinylFs.src(sourceFileGlob)
-        .pipe(crafter.core(''))
+        .pipe(crafter.core({
+            core: core
+        }))
         .pipe(through(function write(file) {
             this.queue(file);
-            //console.dir(file.coreConfig)
+
             if (!coreConfig) {
                 coreConfig = file.coreConfig;
             }
 
         }, function end() {
-            console.log('Core config: ' + JSON.stringify(coreConfig, null, 4));
+            winston.info('Core config: \n' + JSON.stringify(coreConfig));
 
             this.queue(null);
         }));
@@ -72,7 +83,7 @@ function writeCoreConfig(sourceFileGlob) {
 
 function runProgram(er, data) {
     if (er) {
-        console.error('There was an error reading the file ' + packagePath + '\n\n' + er.stack);
+        winston.error('There was an error reading the file ' + packagePath + '\n\n' + er.stack);
         return;
     }
 
@@ -89,7 +100,7 @@ function runProgram(er, data) {
 
         });
 
-    program.command('core [sourceFileGlob]')
+    program.command('corecfg [sourceFileGlob]')
         .description('Analyze source files and write core modules configuration to console.')
         .action(function(sourceFile) {
 
@@ -104,6 +115,25 @@ function runProgram(er, data) {
         'Default to current module name.'
     );
 
+    var cores = {};
+
+    program.option(
+        '-c, --core [coreConfig]',
+        'Specified configuration for a core module.',
+        function(value){
+            
+            if (typeof value !== 'string') {
+                return null;
+            }
+            var result = {};
+            var fields = value.split(':');
+
+            cores[ fields[0] ] = fields.splice(1).join(':');
+            
+            return cores;
+        }
+    );
+
     program.parse(process.argv);
 
 
@@ -114,4 +144,4 @@ function runProgram(er, data) {
 }
 
 var packagePath = relativePackage(process.cwd());
-readJson(packagePath, console.error, false, runProgram);
+readJson(packagePath, winston.error, false, runProgram);

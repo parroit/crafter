@@ -50,8 +50,6 @@ describe('@only requireFinder', function() {
                     result[0].requires.dependencies[file] = path.relative(__dirname + '/..', filePath).replace(/\\/g, '/');
                 });
 
-                //console.dir(result[0].requires);
-                //console.dir(expected)
 
                 result[0].requires.should.be.deep.equal(expected);
                 done();

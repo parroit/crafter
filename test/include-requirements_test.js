@@ -35,7 +35,6 @@ describe('@only includeRequirements', function() {
 
                     return path.relative(__dirname + '/..', f.path).replace(/\\/g, '/');
                 });
-                //console.dir(paths)
                 paths.sort()
                     .should.be.deep.equal(
                         expected.sort()

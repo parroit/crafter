@@ -135,7 +135,6 @@ describe('@only fallup', function() {
             
             
             .pipe(vinylString.dst(function(result) {
-                //console.dir(result[3].contents.toString('utf8'))
                 
                 var result0 = result[0].contents.toString('utf8');
                 var result1 = result[1].contents.toString('utf8');
