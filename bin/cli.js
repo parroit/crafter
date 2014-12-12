@@ -2,6 +2,8 @@
 
 'use strict';
 
+var through2 = require('through2');
+
 var program = require('commander');
 var path = require('path');
 var relativePackage = require('relative-package');
@@ -43,6 +45,18 @@ program.command('bundle [sourceFileGlob]')
 
             vinylFs.src(sourceFileGlob)
                 .pipe(crafter.bundle(path.basename(outputPath)))
+                .pipe(through2.obj(function visit(file, enc, next) {
+                    if (file.isNull()) {
+                        this.push(file); // pass along
+                        return next();
+                    }
+                    console.dir(file);
+                    console.log('Bundle created at '+file.path);
+                    
+                    console.log('\t - '+Object.keys(file.builder.modules).map(function(m){
+                        return m.path;
+                    }));
+                }))
                 .pipe(vinylFs.dest(path.dirname(outputPath)));
 
 
