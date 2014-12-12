@@ -23,6 +23,8 @@ var astBodyConcat = require('../lib/ast-body-concat');
 var crafter = require('../lib/crafter');
 var os = require('os');
 var functionWrapper = require('../lib/declare-function-wrapper');
+var assignId = require('../lib/assign-module-id');
+var replaceRequires = require('../lib/replace-requires');
 
 function checkQuality(checkFn, checkName) {
     describe(checkName, function() {
@@ -55,10 +57,10 @@ function checkWithFile(path, expected, done) {
 
 
     readable
-        .pipe(modulesBuilder.start())
+        .pipe(modulesBuilder())
         .pipe(includeRequirements(vinylFs))
-        .pipe(modulesBuilder.assignId())
-        .pipe(modulesBuilder.replaceRequires())
+        .pipe(assignId())
+        .pipe(replaceRequires())
         .pipe(functionWrapper())
 
 
@@ -106,10 +108,10 @@ function checkConcatenations(path, expected, done) {
 
 
     readable
-        .pipe(modulesBuilder.start())
+        .pipe(modulesBuilder())
         .pipe(includeRequirements(vinylFs))
-        .pipe(modulesBuilder.assignId())
-        .pipe(modulesBuilder.replaceRequires())
+        .pipe(assignId())
+        .pipe(replaceRequires())
         .pipe(functionWrapper())
         .pipe(astBodyConcat(__dirname + '/test/assets/results.js'))
         .pipe(codeGenerator())

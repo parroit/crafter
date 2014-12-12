@@ -18,7 +18,8 @@ var vinylString = require('../lib/vinylString');
 var includeRequirements = require('../lib/include-requirements.js');
 var modulesBuilder = require('../lib/modules-builder');
 var codeGenerator = require('../lib/code-generator');
-
+var assignId = require('../lib/assign-module-id');
+var replaceRequires = require('../lib/replace-requires');
 var functionWrapper = require('../lib/declare-function-wrapper');
 
 describe('@only replace-requires', function() {
@@ -26,10 +27,10 @@ describe('@only replace-requires', function() {
 
     function check(readable, expected, done) {
         readable
-            .pipe(modulesBuilder.start())
+            .pipe(modulesBuilder())
             .pipe(includeRequirements(vinylFs))
-            .pipe(modulesBuilder.assignId())
-            .pipe(modulesBuilder.replaceRequires())
+            .pipe(assignId())
+            .pipe(replaceRequires())
             
             .pipe(codeGenerator())
             .pipe(vinylString.dst(function(result) {

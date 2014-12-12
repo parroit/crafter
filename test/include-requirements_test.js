@@ -28,7 +28,7 @@ describe('@only includeRequirements', function() {
 
     function check(readable, expected, done) {
         readable
-            .pipe(modulesBuilder.start())
+            .pipe(modulesBuilder())
             .pipe(includeRequirements(vinylFs))
             .pipe(vinylString.dst(function(result) {
                 var paths = result.map(function(f) {

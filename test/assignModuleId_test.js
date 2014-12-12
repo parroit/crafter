@@ -17,15 +17,17 @@ var vinylFs = require('vinyl-fs');
 var vinylString = require('../lib/vinylString');
 var includeRequirements = require('../lib/include-requirements.js');
 var modulesBuilder = require('../lib/modules-builder');
+var assignId = require('../lib/assign-module-id');
+var replaceRequires = require('../lib/replace-requires');
 
 describe('@only assignModuleId', function() {
     this.timeout(2000);
 
     function check(readable, expected, done) {
         readable
-            .pipe(modulesBuilder.start())
+            .pipe(modulesBuilder())
             .pipe(includeRequirements(vinylFs))
-            .pipe(modulesBuilder.assignId())
+            .pipe(assignId())
             .pipe(vinylString.dst(function(result) {
                 var ids = result.map(function(f) {
                     return {
